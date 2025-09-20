@@ -53,6 +53,7 @@
 - In `personal_info_gui.py`, the background color of the output box were too bright for the text.
     - Solution: Changed the background color from gray to black to make the texts more visible. Changes were at line 71 (`Colors.GREY_100` to `Colors.BLACK45`) and 105 (removed `color=ft.Colors.GREY_600`).
 - Flet desktop app is not displaying on virtual environment but in web browser and global environment/interpreter it is working just fine. No solutions found yet. Tried reinstalling flet and python; downgraded python from 3.13 to 3.11; and redoing the whole project starting from week 1.
+    - Solution: Moved `CCCS106` folder from the `School` directory to the Desktop, then re-set up the virtual environment.
 
 ## Learning Outcomes
 
