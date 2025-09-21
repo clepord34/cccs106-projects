@@ -10,7 +10,7 @@ def connect_db():
             database="fletapp"
         )
         if connection.is_connected():
-            print("✅ Connected to MySQL database")
+            print("Connected to MySQL database")
             return connection
     except Error as e:
         print(f"Error: {e}")
