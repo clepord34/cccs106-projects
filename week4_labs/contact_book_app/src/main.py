@@ -24,6 +24,8 @@ def main(page: ft.Page):
         on_click=lambda e: add_contact(page, inputs, contacts_list_view, db_conn)
     )
 
+    search_box = ft.TextField(label="Search", width=350)
+    
     page.add(
         ft.Column(
             [
@@ -32,6 +34,7 @@ def main(page: ft.Page):
                 phone_input,
                 email_input,
                 add_button,
+                search_box,
                 ft.Divider(),
                 ft.Text("Contacts:", size=20, weight=ft.FontWeight.BOLD),
                 contacts_list_view,

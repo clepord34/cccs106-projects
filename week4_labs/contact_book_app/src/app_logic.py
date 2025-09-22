@@ -25,7 +25,7 @@ def display_contacts(page, contacts_list_view, db_conn):
                         ft.PopupMenuItem(
                             text="Delete",
                             icon=ft.Icons.DELETE,
-                            on_click=lambda _, cid=contact_id: delete_contact(page, cid, db_conn, contacts_list_view)
+                            on_click=lambda _, cid=contact_id: delete_contact_confirmation(page, cid, db_conn, contacts_list_view)
                         ),
                     ],
                 ),
@@ -36,13 +36,27 @@ def display_contacts(page, contacts_list_view, db_conn):
 def add_contact(page, inputs, contacts_list_view, db_conn):
     """Adds a new contact and refreshes the list."""
     name_input, phone_input, email_input = inputs
-    add_contact_db(db_conn, name_input.value, phone_input.value, email_input.value)
-    
-    for field in inputs:
-        field.value = ""
+
+    if name_input.value:
+        add_contact_db(db_conn, name_input.value, phone_input.value, email_input.value)
+        for field in inputs:
+            field.value = ""
+        name_input.error_text = None
+    else:
+        name_input.error_text = "Name is required"
     
     display_contacts(page, contacts_list_view, db_conn)
     page.update()
+
+def delete_contact_confirmation(page, contact_id, db_conn, contacts_list_view):
+    delete_contact_confirmation_dialog = ft.AlertDialog(
+            icon=ft.Icon(name=ft.Icons.ERROR, color=ft.Colors.RED),
+            title=ft.Text("Delete Confirmation", text_align=ft.TextAlign.CENTER),
+            content=ft.Text(f"Are you sure you want to delete this contact?", text_align=ft.TextAlign.CENTER),
+            alignment=ft.alignment.center,
+            actions=[ft.TextButton("Yes", on_click=lambda e: (page.close(delete_contact_confirmation_dialog), delete_contact(page, contact_id, db_conn, contacts_list_view))),],
+            )
+    page.open(delete_contact_confirmation_dialog)
 
 def delete_contact(page, contact_id, db_conn, contacts_list_view):
     """Deletes a contact and refreshes the list."""
