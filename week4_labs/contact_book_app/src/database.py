@@ -25,11 +25,16 @@ def add_contact_db(conn, name, phone, email):
     )
     conn.commit()
 
-def get_all_contacts_db(conn):
+def get_all_contacts_db(conn, search_value):
     """Retrieves all contacts from the database."""
     cursor = conn.cursor()
     cursor.execute("SELECT id, name, phone, email FROM contacts")
-    return cursor.fetchall()
+    results = cursor.fetchall()
+    if search_value:
+        cursor.execute("SELECT id, name, phone, email FROM contacts WHERE name LIKE ?", (f"%{search_value}%",))
+        results = cursor.fetchall()
+    
+    return results
 
 def update_contact_db(conn, contact_id, name, phone, email):
     """Updates an existing contact in the database."""

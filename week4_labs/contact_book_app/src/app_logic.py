@@ -2,36 +2,60 @@
 import flet as ft
 from database import update_contact_db, delete_contact_db, add_contact_db, get_all_contacts_db
 
-def display_contacts(page, contacts_list_view, db_conn):
+def theme_change(page, theme_value):
+    page.theme_mode = (
+        ft.ThemeMode.DARK
+        if page.theme_mode == ft.ThemeMode.LIGHT
+        else ft.ThemeMode.LIGHT
+    )
+    theme_value.label = (
+        "Light theme" if page.theme_mode == ft.ThemeMode.LIGHT else "Dark theme"
+    )
+    page.update()
+
+def display_contacts(page, contacts_list_view, db_conn, search_query=None):
     """Fetches and displays all contacts in the ListView."""
     contacts_list_view.controls.clear()
-    contacts = get_all_contacts_db(db_conn)
+    contacts = get_all_contacts_db(db_conn, search_query)
+    if contacts == []:
+        contacts_list_view.controls.clear()
+        contacts_list_view.controls.append(ft.Text("No contacts found."))
+        page.update()
+        
     for contact in contacts:
         contact_id, name, phone, email = contact
 
         contacts_list_view.controls.append(
-            ft.ListTile(
-                title=ft.Text(name),
-                subtitle=ft.Text(f"Phone: {phone} | Email: {email}"),
-                trailing=ft.PopupMenuButton(
-                    icon=ft.Icons.MORE_VERT,
-                    items=[
-                        ft.PopupMenuItem(
-                            text="Edit",
-                            icon=ft.Icons.EDIT,
-                            on_click=lambda _, c=contact: open_edit_dialog(page, c, db_conn, contacts_list_view)
-                        ),
-                        ft.PopupMenuItem(),
-                        ft.PopupMenuItem(
-                            text="Delete",
-                            icon=ft.Icons.DELETE,
-                            on_click=lambda _, cid=contact_id: delete_contact_confirmation(page, cid, db_conn, contacts_list_view)
-                        ),
-                    ],
+            ft.Card(
+                ft.ListTile(
+                    title=ft.Text(name),
+                    subtitle=ft.Row([
+                                    ft.Icon(ft.Icons.PHONE),
+                                    ft.Text(f"Phone: {phone}"),
+                                    ft.Icon(ft.Icons.EMAIL), 
+                                    ft.Text(f"Email: {email}"),
+                                    ]),
+                    trailing=ft.PopupMenuButton(
+                        icon=ft.Icons.MORE_VERT,
+                        items=[
+                            ft.PopupMenuItem(
+                                text="Edit",
+                                icon=ft.Icons.EDIT,
+                                on_click=lambda _, c=contact: open_edit_dialog(page, c, db_conn, contacts_list_view)
+                            ),
+                            ft.PopupMenuItem(),
+                            ft.PopupMenuItem(
+                                text="Delete",
+                                icon=ft.Icons.DELETE,
+                                on_click=lambda _, cid=contact_id: delete_contact_confirmation(page, cid, db_conn, contacts_list_view)
+                            ),
+                        ],
+                    ),
                 ),
+                shadow_color=ft.Colors.ON_SURFACE_VARIANT,
             )
         )
-        page.update()
+    page.update()
 
 def add_contact(page, inputs, contacts_list_view, db_conn):
     """Adds a new contact and refreshes the list."""
@@ -54,7 +78,9 @@ def delete_contact_confirmation(page, contact_id, db_conn, contacts_list_view):
             title=ft.Text("Delete Confirmation", text_align=ft.TextAlign.CENTER),
             content=ft.Text(f"Are you sure you want to delete this contact?", text_align=ft.TextAlign.CENTER),
             alignment=ft.alignment.center,
-            actions=[ft.TextButton("Yes", on_click=lambda e: (page.close(delete_contact_confirmation_dialog), delete_contact(page, contact_id, db_conn, contacts_list_view))),],
+            actions=[ft.TextButton("Yes", on_click=lambda e: (page.close(delete_contact_confirmation_dialog), delete_contact(page, contact_id, db_conn, contacts_list_view))),
+                     ft.TextButton("No", on_click=lambda e: (page.close(delete_contact_confirmation_dialog))),
+                     ],
             )
     page.open(delete_contact_confirmation_dialog)
 
@@ -76,14 +102,14 @@ def open_edit_dialog(page, contact, db_conn, contacts_list_view):
         page.update()
         display_contacts(page, contacts_list_view, db_conn)
 
-        dialog = ft.AlertDialog(
-            modal=True,
-            title=ft.Text("Edit Contact"),
-            content=ft.Column([edit_name, edit_phone, edit_email]),
-            actions=[
-                ft.TextButton("Cancel", on_click=lambda e: setattr(dialog, 'open', False) or page.update()),
-                ft.TextButton("Save", on_click=save_and_close),
-            ],
-        )
+    dialog = ft.AlertDialog(
+        modal=True,
+        title=ft.Text("Edit Contact"),
+        content=ft.Column([edit_name, edit_phone, edit_email]),
+        actions=[
+            ft.TextButton("Cancel", on_click=lambda e: setattr(dialog, 'open', False) or page.update()),
+            ft.TextButton("Save", on_click=save_and_close),
+        ],
+    )
 
-        page.open(dialog)
+    page.open(dialog)
