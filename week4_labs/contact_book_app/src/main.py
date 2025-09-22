@@ -9,13 +9,13 @@ def main(page: ft.Page):
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.window_width = 400
     page.window_height = 600
-    page.theme_mode = ft.ThemeMode.SYSTEM
+    page.theme_mode = ft.ThemeMode.LIGHT
 
     db_conn = init_db()
 
-    name_input = ft.TextField(label="Name", width=350)
-    phone_input = ft.TextField(label="Phone", width=350)
-    email_input = ft.TextField(label="Email", width=350)
+    name_input = ft.TextField(label="Name", width=350, icon=ft.Icons.PERSON)
+    phone_input = ft.TextField(label="Phone", width=350, icon=ft.Icons.PHONE)
+    email_input = ft.TextField(label="Email", width=350, icon=ft.Icons.EMAIL)
 
     inputs = (name_input, phone_input, email_input)
 
@@ -26,8 +26,13 @@ def main(page: ft.Page):
         on_click=lambda e: add_contact(page, inputs, contacts_list_view, db_conn)
     )
 
-    theme_change_switch = ft.Switch(label="Light theme", on_change=lambda e: theme_change(page, theme_change_switch))
-    search_box = ft.TextField(label="Search", width=350, on_change=lambda e: display_contacts(page, contacts_list_view, db_conn, search_query=e.control.value))
+    theme_change_switch = ft.Switch(label="Light theme", 
+                                    thumb_icon={
+                                        ft.ControlState.DEFAULT: ft.Icons.LIGHT_MODE,
+                                        ft.ControlState.SELECTED: ft.Icons.DARK_MODE
+                                        }, 
+                                    on_change=lambda e: theme_change(page, theme_change_switch))
+    search_box = ft.TextField(label="Search", width=350, icon=ft.Icons.SEARCH, on_change=lambda e: display_contacts(page, contacts_list_view, db_conn, search_query=e.control.value))
     
     page.add(
         ft.Column(
@@ -39,10 +44,20 @@ def main(page: ft.Page):
                     ], 
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN
                 ),
-                name_input,
-                phone_input,
-                email_input,
-                add_button,
+                ft.Row(
+                    [
+                        ft.Column(
+                            [
+                                name_input,
+                                phone_input,
+                                email_input,
+                                add_button,
+                            ],
+                            horizontal_alignment=ft.CrossAxisAlignment.END
+                        ),
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                ),
                 ft.Divider(),
                 ft.Row(
                     [
