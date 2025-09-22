@@ -27,29 +27,31 @@ def display_contacts(page, contacts_list_view, db_conn, search_query=None):
 
         contacts_list_view.controls.append(
             ft.Card(
-                ft.ListTile(
-                    title=ft.Text(name),
-                    subtitle=ft.Row([
-                                    ft.Icon(ft.Icons.PHONE),
-                                    ft.Text(f"Phone: {phone}"),
-                                    ft.Icon(ft.Icons.EMAIL), 
-                                    ft.Text(f"Email: {email}"),
-                                    ]),
-                    trailing=ft.PopupMenuButton(
-                        icon=ft.Icons.MORE_VERT,
-                        items=[
-                            ft.PopupMenuItem(
-                                text="Edit",
-                                icon=ft.Icons.EDIT,
-                                on_click=lambda _, c=contact: open_edit_dialog(page, c, db_conn, contacts_list_view)
-                            ),
-                            ft.PopupMenuItem(),
-                            ft.PopupMenuItem(
-                                text="Delete",
-                                icon=ft.Icons.DELETE,
-                                on_click=lambda _, cid=contact_id: delete_contact_confirmation(page, cid, db_conn, contacts_list_view)
-                            ),
-                        ],
+                ft.Container(
+                    ft.ListTile(
+                        title=ft.Text(name),
+                        subtitle=ft.Row([
+                                        ft.Icon(ft.Icons.PHONE),
+                                        ft.Text(f"Phone: {phone}"),
+                                        ft.Icon(ft.Icons.EMAIL), 
+                                        ft.Text(f"Email: {email}"),
+                                        ]),
+                        trailing=ft.PopupMenuButton(
+                            icon=ft.Icons.MORE_VERT,
+                            items=[
+                                ft.PopupMenuItem(
+                                    text="Edit",
+                                    icon=ft.Icons.EDIT,
+                                    on_click=lambda _, c=contact: open_edit_dialog(page, c, db_conn, contacts_list_view)
+                                ),
+                                ft.PopupMenuItem(),
+                                ft.PopupMenuItem(
+                                    text="Delete",
+                                    icon=ft.Icons.DELETE,
+                                    on_click=lambda _, cid=contact_id: delete_contact_confirmation(page, cid, db_conn, contacts_list_view)
+                                ),
+                            ],
+                        ),
                     ),
                 ),
                 shadow_color=ft.Colors.ON_SURFACE_VARIANT,
