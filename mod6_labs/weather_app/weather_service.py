@@ -19,6 +19,32 @@ class WeatherService:
         self.base_url = Config.BASE_URL
         self.timeout = Config.TIMEOUT
     
+    async def get_forecast(self, city: str, units: str = "metric") -> Dict:
+        """Get 5-day weather forecast."""
+        forecast_url = "https://api.openweathermap.org/data/2.5/forecast"
+        params = {
+            "q": city,
+            "appid": self.api_key,
+            "units": units,
+        }
+        
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                response = await client.get(forecast_url, params=params)
+                
+                if response.status_code == 404:
+                    raise WeatherServiceError(f"City '{city}' not found.")
+                elif response.status_code != 200:
+                    raise WeatherServiceError(f"Error fetching forecast: {response.status_code}")
+                
+                return response.json()
+        except httpx.TimeoutException:
+            raise WeatherServiceError("Request timed out.")
+        except httpx.NetworkError:
+            raise WeatherServiceError("Network error occurred.")
+        except Exception as e:
+            raise WeatherServiceError(f"Error fetching forecast: {str(e)}")
+
     async def get_weather(self, city: str) -> Dict:
         """
         Fetch weather data for a given city.
@@ -113,3 +139,21 @@ class WeatherService:
                 
         except Exception as e:
             raise WeatherServiceError(f"Error fetching weather data: {str(e)}")
+        
+
+
+    async def get_location_weather(self):
+        """Get weather for current location."""
+        # This would require geolocation API
+        # For now, use IP-based service
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get("https://ipapi.co/json/")
+                data = response.json()
+                lat, lon = data['latitude'], data['longitude']
+                weather = await self.weather_service.get_weather_by_coordinates(
+                    lat, lon
+                )
+                self.display_weather(weather)
+        except Exception as e:
+            self.show_error("Could not get your location")
